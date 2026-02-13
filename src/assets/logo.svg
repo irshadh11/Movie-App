@@ -1,0 +1,24 @@
+<svg
+  width="320"
+  height="80"
+  viewBox="0 0 320 80"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <style>
+    .book {
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      font-size: 48px;
+      font-weight: 600;
+      fill: #0f172a;
+    }
+    .myseat {
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      fill: #f97316;
+    }
+  </style>
+
+  <text x="10" y="55" class="book">Book</text>
+  <text x="120" y="55" class="myseat">MySeat</text>
+</svg>
