@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import  screenImage  from "../assets/screenImage.svg";
 import { useState } from "react";
 import {seatData} from "../mock/seat";
@@ -14,7 +14,6 @@ type Seat = {
 };
 
 const SeatLayout = () => {
-  const {id} = useParams();
   const [seats, setSeats] = useState<Seat[]>(
     seatData.seats.map((seat) =>({
       ...seat,
@@ -50,7 +49,7 @@ const SeatLayout = () => {
     <div>
       <div className="flex-1 flex flex-col items-center max-md:mt-16 
       ">
-        <h1 className="mt-6 text-2xl font-semibold h-60 ">
+        <h1 className="mt-25 p-2 text-4xl font-semibold text-center text-white h-1/2">
 
           Select Your Seat
         </h1>
@@ -123,11 +122,7 @@ const SeatLayout = () => {
 
           <button
           disabled={seatSelected.length === 0}
-          onClick={() => navigate(`/checkout/${id},{
-            state:{
-            seat: seatSelected,
-            total: totalCost
-            }}`)}
+          onClick={() => navigate("/mybookings")}
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded disabled:bg-gray-400"
         >
           Proceed
