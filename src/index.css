@@ -2,15 +2,11 @@
 
 @import "tailwindcss";
 
-
-
-
-@layer base {
-  :root {
-    --color-primary: #f84565;
-    --color-primary-dull: #d63854;
-  }
+:root {
+  --color-primary: #f84565;
+  --color-primary-dull: #d63854;
 }
+
 
 
 *{
