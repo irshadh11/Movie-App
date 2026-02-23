@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom"
 import  screenImage  from "../assets/screenImage.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {seatData} from "../mock/seat";
+import CircularUnderLoad from "../components/CircularUnderLoad";
 
 type Seat = {
   id: string;
@@ -14,6 +15,8 @@ type Seat = {
 };
 
 const SeatLayout = () => {
+  const navigate= useNavigate();
+  const [loading, setLoading] = useState(true);
   const [seats, setSeats] = useState<Seat[]>(
     seatData.seats.map((seat) =>({
       ...seat,
@@ -21,6 +24,13 @@ const SeatLayout = () => {
 
     }))
   );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSeatSelected = (seatId : string) =>{
     setSeats((prevSeats)=>
@@ -42,14 +52,11 @@ const SeatLayout = () => {
   acc[seat.row].push(seat);
   return acc;
 }, {});
-
-
-  const navigate= useNavigate();
+  if (loading) return <CircularUnderLoad />;
   return (
     <div>
-      <div className="flex-1 flex flex-col items-center max-md:mt-16 
-      ">
-        <h1 className="mt-25 p-2 text-4xl font-semibold text-center text-white h-1/2">
+      <div className="min-h-screen flex-1 flex flex-col items-center max-md:mt-16">
+        <h1 className="p-12 text-4xl font-semibold text-center text-white h-1/2">
 
           Select Your Seat
         </h1>
@@ -64,7 +71,7 @@ const SeatLayout = () => {
         <div>
 
         </div>
-        <div className="mt-6 space-y-6">
+        <div className="mt-6">
           {Object.keys(groupedSeats).map((row) => {
     
           const rowSeats = groupedSeats[row];
@@ -78,28 +85,25 @@ const SeatLayout = () => {
           <div key={row}>
         
           {(row === "A" || row === "D" || row === "F") && (
-            <h3 className="text-lg font-semibold text-center text-white mb-2">
+            <h3 className="text-lg font-semibold text-center text-white mb-12">
               {category} Seats
             </h3>
           )}
 
-        <div className="grid grid-cols-5 gap-4 ">
+        <div className="grid grid-cols-5 gap-8 justify-center " style={{marginBottom:"12px"}}>
           {rowSeats.map((seat: any) => (
-            <button
-              key={seat.id}
-              disabled={seat.booked}
-              onClick={() => handleSeatSelected(seat.id)}
-              className={`w-10 h-10 rounded
-                ${
-                  seat.booked
+              <button
+                disabled={seat.booked}
+                onClick={() => handleSeatSelected(seat.id)}
+                className={`w-10 h-10 rounded 
+                  ${seat.booked
                     ? "bg-red-700 cursor-not-allowed"
                     : seat.selected
-                    ? "bg-green-600"
-                    : "bg-gray-700 hover:bg-gray-500"
-                }`}
-            >
-              {seat.id}
-            </button>
+                      ? "bg-green-600"
+                      : "bg-gray-700 hover:bg-gray-500"}`}
+              >
+                {seat.id}
+              </button>
           ))}
           </div>
       </div>
@@ -122,7 +126,7 @@ const SeatLayout = () => {
 
           <button
           disabled={seatSelected.length === 0}
-          onClick={() => navigate("/mybookings")}
+          onClick={() => navigate("/mybookings", { state: { fromBooking: true } })}
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded disabled:bg-gray-400"
         >
           Proceed

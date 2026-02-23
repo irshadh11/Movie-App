@@ -14,6 +14,9 @@ const tmdb = {
 
     collectionDetails: (collectionId: number) =>
       `/collection/${collectionId}?api_key=${API_KEY}`,
+    searchMovies: (query: string) =>
+      `/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`,
+
 
   },
 };

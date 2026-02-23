@@ -1,56 +1,162 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from "react-router-dom";
+import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
 import logowhite from "../assets/logowhite.svg";
-import {MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react';
-import { useClerk, UserButton, useUser } from '@clerk/clerk-react';
-const Navbar = () => {
-    const{user} = useUser()
+import { ClapperboardIcon, Heart, Home, TicketPlus, } from "lucide-react";
+import { useEffect, useState } from "react";
+import tmdb from "../utils/tmdb";
 
-    const [isOpen, setIsOpen] = useState(false)
-    const {openSignIn} = useClerk()
-    const navigate = useNavigate()
+type Movie = {
+  id: number;
+  title: string;
+};
+
+const Navbar = () => {
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const { openSignIn } = useClerk();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Movie[]>([]);
+  const handleSearch = async (value: string) => {
+  setQuery(value);
+  if (!value.trim()) {
+    setResults([]);
+    return;
+  }
+  try {
+    const res = await fetch(
+      `${tmdb.baseUrl}${tmdb.endpoints.searchMovies(value)}`
+    );
+    const data = await res.json();
+    setResults(data.results || []);
+  } catch (error) {
+    console.error("Search error:", error);
+  }
+};
+useEffect(() => {
+  const delay = setTimeout(() => {
+    if (query.trim()) {
+      handleSearch(query);
+    }
+  }, 400);
+
+
+  return () => clearTimeout(delay);
+}, [query]);
 
   return (
-    <div className='fixed top-0 left-0 z-50 w-full flex items-center justify-between
-  px-6 md:px-16 lg:px-36 py-5 bg-black/80 backdrop-blur-md '>
-        <Link to='/' className='max-md:flex-1 '>
-        <img src= {logowhite} alt='BookMySeat' className='w-36 h-auto  '></img>
-        </Link>
-        <div className={`max-md:absolute max-md:top-0 max-md:left-0
-        max-md:font-medium max-md:text-lg flex flex-col md:flex-row items-center
-        max-md:justify-center gap-5.5 min-md:px-8 py-3 max-md:h-screen min-md:rounded-full backdrop-blur 
-        bg-black/70 md:bg-white/10 md:border border-gray-300/20 overflow-hidden transition-[width] duration-300  ${isOpen ? "max-md:w-full" : "max-md:w-0"} `}>
-            <XIcon className='md:hidden absolute top-6 right-6 w-6 h-6 cursor-pointer'
-            onClick={() => setIsOpen(!isOpen)} />
-            <Link onClick={() => {scrollTo(0,0); setIsOpen(false)}} to='/'>Home</Link>
-            <Link onClick={() => {scrollTo(0,0); setIsOpen(false)}} to='/movies'>Movies</Link>
-            <Link onClick={() => {scrollTo(0,0); setIsOpen(false)}} to='/'>Theatre</Link>
-            <Link onClick={() => {scrollTo(0,0); setIsOpen(false)}} to='/favorite'>Favorite</Link>      
-        </div>
-        <div className='relative flex items-center gap-6' style={{position:'fixed', right:'70px'}}>
-            <SearchIcon className='max-lg:hidden w-6 h-6 cursor-pointer'/>
-            {
-                !user ? (<button onClick ={() => openSignIn()} className='absolute right-6 top-1/2 -translate-y-1/2 px-4 py-1 sm:px-7 sm:py-2
-                bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer '>Login</button>) : (
-                    <UserButton>
-                        <UserButton.MenuItems>
-                            <UserButton.Action label='My Bookings' labelIcon=
-                            {<TicketPlus width={15}/>} onClick={() => navigate('/mybookings')}/>
+  <div className=" w-64 h-full text-gray-300 flex flex-col px-6 py-8 shadow-2xl border-r border-gray-800" >
 
-                        </UserButton.MenuItems>
-                    </UserButton>
-                )
-            }
-        </div>
+  <div className="flex flex-col flex-1 gap-8">
 
-        <div>
-            <MenuIcon  className='max-md:ml-4 md:hidden w-8 h-8 cursor-pointer' onClick={()=> setIsOpen(!isOpen)}/> 
+    <NavLink to="/" className="flex justify-center">
+      <img src={logowhite} alt="BookMySeat" className="w-28 opacity-90 hover:opacity-100 transition" />
+    </NavLink>
 
-        </div>
-
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="Search movies..."
+        value={query}
+        onChange={(e) => handleSearch(e.target.value)}
+        className="px-4 py-2.5 rounded-lg bg-black/70 border border-slate-800 
+        border-orange-400/40 focus:ring-1 focus:ring-orange-500 
+        text-sm text-white outline-none"
+    />
+      {results.length > 0 && (
+        <div className="absolute w-full bg-black/90 border border-gray-700 rounded-lg max-h-80 overflow-y-auto z-50">
+            {results.slice(0, 6).map((movie) => (
+        <div
+        key={movie.id}
+        className="px-4 py-2 hover:bg-slate-800 cursor-pointer"
+        onClick={() => {navigate(`/movie/${movie.id}`)
         
+        setQuery("");        
+        setResults([]);      
+        }}
+        >
+        {movie.title}
+        </div>
+    ))}
     </div>
-  )
-}
+    )}
+    {query && results.length === 0 && (
+        <div className="absolute top-full mt-2 w-full bg-black/95 
+        border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-400">
+            No results found...
+        </div>
+    )}
 
-export default Navbar
+    </div>
+
+    <nav className="flex flex-col gap-3 text-sm font-medium">
+      <NavLink to="/" className={({ isActive }) =>
+        `px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all ${
+          isActive
+            ? " bg-orange-500/40  text-white"
+            : "hover:bg-orange-500/60"
+        }`
+      }><Home className="relative w-4 h-4" /> 
+      Home</NavLink>
+
+      <NavLink to="/movies" className={({ isActive }) =>
+        `px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all ${
+          isActive
+            ? " bg-orange-500/40  text-white "
+            : "hover:bg-orange-500/60 "
+        }`
+      }><ClapperboardIcon className="relative w-4 h-4"/>
+        Movies</NavLink>
+
+      <NavLink to="/favorite" className={({ isActive }) =>
+        `px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all ${
+          isActive
+            ? " bg-orange-500/40  text-white "
+            : "hover:bg-orange-500/60 "
+        }`
+      }>
+        <Heart className="relative w-4 h-4 " />
+        Favorite</NavLink>
+
+      <NavLink to="/mybookings" className={({ isActive }) =>
+        `px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all ${
+          isActive
+            ? " bg-orange-500/40  text-white"
+            : "hover:bg-orange-500/60 "
+        }`
+      }>
+        <TicketPlus className="relative w-4 h-4" />
+        My Bookings</NavLink>
+
+    </nav>
+
+  </div>
+
+  <div className="pt-10 border-t border-gray-800">
+    {!user ? (
+      <button
+        onClick={() => openSignIn()}
+        className="w-full py-2.5 rounded-lg bg-orange-500/40 hover:bg-orange-500/60 border border-red-400/40"
+      >
+        Login
+      </button>
+    ) : (
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-400 uppercase">
+          Account
+        </span>
+        <UserButton>
+            <UserButton.MenuItems>
+                <UserButton.Action label='My Bookings' labelIcon=
+                    {<TicketPlus width={15}/>} onClick={() => navigate('/mybookings')}/>
+            </UserButton.MenuItems>
+        </UserButton>
+      </div>
+    )}
+  </div>
+
+</div>
+
+  );
+};
+
+export default Navbar;

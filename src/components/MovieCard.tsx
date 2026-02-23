@@ -2,16 +2,29 @@ import { StarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import tmdb from "../utils/tmdb";
 
-const MovieCard = ({ movie }: { movie: any }) => {
+type Movie = {
+  id: number;
+  title: string;
+  poster_path: string;
+  vote_average?: number;
+  release_date?: string;
+};
+
+type MovieCardProps = {
+  movie: Movie;
+  hoverEffect?: boolean;
+};
+
+const MovieCard = ({ movie, hoverEffect = false }: MovieCardProps) => {
   const navigate = useNavigate();
 
   if (!movie) return null;
 
   return (
     <div
-      className="group w-60 rounded-2xl bg-white/5 border border-white/10
-        backdrop-blur-md overflow-hidden transition hover:-translate-y-1 
-      ">
+      className={`group w-60 rounded-2xl bg-white/5 border border-white/10
+        backdrop-blur-lg overflow-hidden transition ${hoverEffect ? "hover:-translate-y-1" : ""}
+      `}>
       <div className="relative">
         <img
           onClick={() => {navigate(`/movie/${movie.id}`);
@@ -48,8 +61,8 @@ const MovieCard = ({ movie }: { movie: any }) => {
           onClick={() => {navigate(`/movie/${movie.id}`); 
           scrollTo(0, 0);
           }}
-          className="mt-3 w-full px-4 py-2 text-sm bg-red-500/40 hover:bg-red-500/60 border border-red-400/40
-            backdrop-blur-md transition rounded-full font-medium text-white
+          className="py-2 text-sm bg-orange-500/40 hover:bg-orange-500/60 border border-orange-400/40
+            backdrop-blur-md transition rounded-full text-white cursor-pointer
           ">
           Buy Tickets
         </button>

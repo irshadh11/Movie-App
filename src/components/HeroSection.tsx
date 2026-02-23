@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, CalendarIcon, ClockIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade } from "swiper/modules";
-import "swiper/swiper-bundle.css";
+import { Pagination,Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/effect-fade";
+
+
 
 import tmdb from "../utils/tmdb";
+import CircularUnderLoad from "./CircularUnderLoad";
 
 type Genre = {
   id: number;
@@ -21,19 +24,19 @@ type Movie = {
   release_date: string;
   runtime: number;
   genres: Genre[];
+  vote_average: number;
 };
 
 const HeroSection = () => {
-  
   const [movies, setMovies] = useState<Movie[]>([]);
-  const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(true)
   useEffect(() => {
     fetchNowPlayingMovies();
   }, []);
 
   const fetchNowPlayingMovies = async () => {
     try {
+      setLoading(true);
       const res = await fetch(
         `${tmdb.baseUrl}${tmdb.endpoints.nowPlaying}`
       );
@@ -54,65 +57,50 @@ const HeroSection = () => {
     } catch (error) {
       console.error("TMDB HeroSection error:", error);
     }
+    finally {
+    setLoading(false); 
+  }
   };
-
+  if (loading) return <CircularUnderLoad />;
   if (!movies.length) return null;
+
 
   return (
     <Swiper
-      modules={[Autoplay, EffectFade]}
-      effect="fade"
-      autoplay={{ delay: 5000}}
-      loop
-      className="h-screen"
+      modules={[Pagination,Autoplay]}
+      autoplay={{
+        delay: 5000,
+      }}
+      pagination={{ 
+        type:"bullets",
+        clickable:true,
+        bulletClass:"swiper-pagination-bullet !bg-gray-100/70 w-3 h-3",
+        bulletActiveClass:"swiper-pagination-bullet-active !bg-orange-500 !w-15 !h-3 !rounded-lg transition-all", 
+      }}
+      slidesPerView={1}
+      className="h-[85vh] w-full rounded-lg overflow-hidden"
     >
       {movies.map((movie) => (
         <SwiperSlide key={movie.id}>
+          <div className="w-full h-[85vh] flex flex-col bg-black/90 text-white rounded-lg overflow-hidden ">
           <div
-            className="
-              flex flex-col items-start justify-center gap-4
-              px-6 md:px-16 lg:px-36 bg-cover bg-center h-screen
-            "
+            className="h-[80%] bg-cover bg-center"
             style={{
               backgroundImage: `url(${tmdb.imageBaseUrl}${movie.backdrop_path})`,
             }}
-          >
-            <h1 className="text-5xl md:text-[70px] md:leading-[4.5rem] font-semibold max-w-xl">
+          />
+          <div className="absolute inset-0 bg-linear-to-t
+          from-black via-black/80 to-transparent"
+          />
+            <div className="p-6  flex flex-col justify-center items-center bg-black/80 backdrop-blur-sm
+            text-center gap-4"> 
+            <h1 className="text-2xl md:text-4xl font-bold mb-4">
               {movie.title}
             </h1>
-
-            <div className="flex items-center gap-4 text-gray-300 flex-wrap">
-              <span>
-                {movie.genres.map((g) => g.name).join(" | ")}
-              </span>
-
-              <div className="flex items-center gap-1">
-                <CalendarIcon className="w-4 h-4" />
-                <span>{movie.release_date?.slice(0,4)}</span>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <ClockIcon className="w-4 h-4" />
-                <span>
-                  {Math.floor(movie.runtime / 60)}h{" "}
-                  {movie.runtime % 60}m
-                </span>
-              </div>
-            </div>
-
-            <p className="max-w-xl text-gray-200 line-clamp-6">
+            <p className="text-gray-300 max-w-3xl line-clamp-3">
               {movie.overview}
             </p>
-
-            <button
-              onClick={() => navigate("/movies")}
-              className="
-                flex items-center gap-1 px-6 py-3 text-sm bg-red-500/40 hover:bg-red-500/60
-                border border-red-400/40 backdrop-blur-md transition rounded-full font-medium cursor-pointer
-              ">
-              Explore More
-              <ArrowRight className="w-5 h-5" />
-            </button>
+            </div>
           </div>
         </SwiperSlide>
       ))}

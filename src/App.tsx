@@ -1,33 +1,30 @@
-import Navbar from './components/Navbar'
 import { Route, Routes } from 'react-router-dom'
 import Home  from './pages/Home'
 import MoviesDetails from './pages/MoviesDetails'
 import SeatLayout from './pages/SeatLayout'
-import Footer from './components/Footer'
 import MyBookings from './pages/MyBookings'
 import Movies from './pages/Movies'
 import Favorite from './pages/Favorite'
-import Checkout from './pages/Checkout'
+import MainLayout from './components/Mainlayout'
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <>
-    <Navbar />
+    <Toaster position="top-center" />
       <Routes>
-        <Route path='/' element = {<Home />}/>
-        <Route path='/movies' element = {<Movies />}/>
-        <Route path='/movie/:id' element = {<MoviesDetails />}/>
-        <Route path='/mybookings' element = {<MyBookings />}/>
-        <Route path='/seatlayout/:id' element = {<SeatLayout />}/>
-        <Route path="/checkout/:id" element={<Checkout />} />
-        <Route path='/favorite' element = {<Favorite />}/>
+        <Route element={<MainLayout />}>
+          <Route path='/' element = {<Home />}/>
+          <Route path='/movies' element = {<Movies />}/>
+          <Route path='/movie/:id' element = {<MoviesDetails />}/>
+          <Route path='/mybookings' element = {<MyBookings />}/>
+          <Route path='/seatlayout/:id' element = {<SeatLayout />}/>
+          <Route path='/favorite' element = {<Favorite />}/>
+      </Route>
       </Routes>
-    <Footer />
-
-    
-    
     </>
+
   )
 }
 
-export default App
+export default App;
